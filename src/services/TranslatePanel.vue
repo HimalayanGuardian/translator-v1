@@ -176,23 +176,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { prefs } from '@/stores/prefs'
-
-// Import translation service based on mode
-const TRANSLATION_MODE = import.meta.env.VITE_TRANSLATION_MODE || 'client'
-const useAPI = TRANSLATION_MODE === 'api'
-
-// Dynamic import based on mode
-import * as clientTranslate from '@/services/translate'
-import * as apiTranslate from '@/services/translateAPI'
-
-const { detectLanguage, translateText } = useAPI ? apiTranslate : clientTranslate
+import { detectLanguage, translateText } from '@/services/translate'
 
 const input = ref('')
 const output = ref('')
 const detected = ref('')
 const error = ref('')
-const isTranslating = ref(false)
-const isDetecting = ref(false)
 
 const languageOptions = [
   { code: 'en', label: 'English' },
@@ -200,7 +189,6 @@ const languageOptions = [
   { code: 'fr', label: 'French' },
   { code: 'de', label: 'German' },
   { code: 'hi', label: 'Hindi' },
-  { code: 'ne', label: 'Nepali (नेपाली)' },
   { code: 'ja', label: 'Japanese' },
   { code: 'zh', label: 'Chinese (Simplified)' },
   { code: 'ar', label: 'Arabic' },
@@ -218,8 +206,6 @@ onMounted(() => {
 async function onDetect() {
   error.value = ''
   detected.value = ''
-  isDetecting.value = true
-
   try {
     if (!input.value.trim()) {
       error.value = 'Enter text to detect.'
@@ -228,16 +214,12 @@ async function onDetect() {
     detected.value = await detectLanguage(input.value)
   } catch (e: any) {
     error.value = e.message || 'Detection failed.'
-  } finally {
-    isDetecting.value = false
   }
 }
 
 async function onTranslate() {
   error.value = ''
   output.value = ''
-  isTranslating.value = true
-
   try {
     if (!input.value.trim()) {
       error.value = 'Enter text to translate.'
@@ -256,32 +238,15 @@ async function onTranslate() {
     output.value = await translateText(input.value, preferred.value, source)
   } catch (e: any) {
     error.value = e.message || 'Translation failed.'
-  } finally {
-    isTranslating.value = false
   }
 }
 </script>
 
 <style scoped>
 .btn {
-  @apply inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50;
 }
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  @apply inline-flex items-center rounded-lg bg-brand-600 text-white px-3 py-2 text-sm font-medium hover:bg-brand-700 shadow;
 }
 </style>
