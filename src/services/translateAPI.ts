@@ -47,7 +47,11 @@ export async function detectLanguage(text: string): Promise<string> {
   }
 }
 
-export async function translateText(text: string, target: string, source?: string): Promise<string> {
+export async function translateText(
+  text: string,
+  target: string,
+  source?: string,
+): Promise<string> {
   const t0 = performance.now()
 
   try {
